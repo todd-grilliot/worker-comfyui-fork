@@ -1,7 +1,10 @@
 services:
   comfyui-worker:
-    image: worker-comfyui:dev
+    image: yankeehotelfoxtrot51/worker-comfyui:wan13
     pull_policy: never
+    build:
+      context: .
+      dockerfile: Dockerfile
     deploy:
       resources:
         reservations:

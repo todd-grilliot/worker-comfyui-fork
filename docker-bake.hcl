@@ -15,7 +15,7 @@ variable "HUGGINGFACE_ACCESS_TOKEN" {
 }
 
 group "default" {
-  targets = ["base", "sdxl", "sd3", "flux1-schnell", "flux1-dev"]
+  targets = ["base", "sdxl", "sd3", "flux1-schnell", "flux1-dev", "wan13"]
 }
 
 target "base" {
@@ -79,6 +79,17 @@ target "flux1-dev-fp8" {
   target = "final"
   # No args needed, will use default MODEL_TYPE=flux1-dev-fp8
   tags = ["${DOCKERHUB_REPO}/${DOCKERHUB_IMG}:${RELEASE_VERSION}-flux1-dev-fp8"]
+  inherits = ["base"]
+}
+
+target "wan13" {
+  context = "."
+  dockerfile = "Dockerfile"
+  target = "final"
+  args = {
+    MODEL_TYPE = "wan13"
+  }
+  tags = ["${DOCKERHUB_REPO}/${DOCKERHUB_IMG}:${RELEASE_VERSION}-wan13"]
   inherits = ["base"]
 }
 
