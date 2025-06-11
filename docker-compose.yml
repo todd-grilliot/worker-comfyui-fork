@@ -1,6 +1,6 @@
 services:
   comfyui-worker:
-    image: yankeehotelfoxtrot51/worker-comfyui:wan13
+    image: yankeehotelfoxtrot51/worker-comfyui:wan14_I2V
     pull_policy: never
     build:
       context: .
