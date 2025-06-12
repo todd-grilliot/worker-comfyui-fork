@@ -93,3 +93,14 @@ target "wan13" {
   inherits = ["base"]
 }
 
+target "wan14_I2V" {
+  context = "."
+  dockerfile = "Dockerfile"
+  target = "final"
+  args = {
+    MODEL_TYPE = "wan14_I2V"
+  }
+  tags = ["${DOCKERHUB_REPO}/${DOCKERHUB_IMG}:${RELEASE_VERSION}-wan14_I2V"]
+  inherits = ["base"]
+}
+
