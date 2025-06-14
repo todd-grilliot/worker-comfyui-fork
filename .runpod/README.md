@@ -10,6 +10,20 @@ Run [ComfyUI](https://github.com/comfyanonymous/ComfyUI) workflows as a serverle
 
 ---
 
+## What is included?
+
+This worker comes with the **FLUX.1-dev-fp8** (`flux1-dev-fp8.safetensors`) model pre-installed and works only with this model when deployed from the hub. If you want to use a different model, you have to [deploy the endpoint](https://github.com/runpod-workers/worker-comfyui/blob/main/docs/deployment.md) using one of these pre-defined Docker images:
+
+- `runpod/worker-comfyui:<version>-base` - Clean ComfyUI install with no models
+- `runpod/worker-comfyui:<version>-flux1-schnell` - FLUX.1 schnell model
+- `runpod/worker-comfyui:<version>-flux1-dev` - FLUX.1 dev model
+- `runpod/worker-comfyui:<version>-sdxl` - Stable Diffusion XL model
+- `runpod/worker-comfyui:<version>-sd3` - Stable Diffusion 3 medium model
+
+Replace `<version>` with the latest release version from [GitHub Releases](https://github.com/runpod-workers/worker-comfyui/releases)
+
+If you need a different model or you have a LoRA or need custom nodes, then please follow our [Customization Guide](https://github.com/runpod-workers/worker-comfyui/blob/main/docs/customization.md) to create your own custom worker.
+
 ## Usage
 
 The worker accepts the following input parameters:
@@ -30,70 +44,114 @@ This example uses a simplified workflow (replace with your actual workflow JSON)
 {
   "input": {
     "workflow": {
-      "3": {
-        "inputs": {
-          "seed": 1337,
-          "steps": 20,
-          "cfg": 8,
-          "sampler_name": "euler",
-          "scheduler": "normal",
-          "denoise": 1,
-          "model": ["4", 0],
-          "positive": ["6", 0],
-          "negative": ["7", 0],
-          "latent_image": ["5", 0]
-        },
-        "class_type": "KSampler"
-      },
-      "4": {
-        "inputs": {
-          "ckpt_name": "sd_xl_base_1.0.safetensors"
-        },
-        "class_type": "CheckpointLoaderSimple"
-      },
-      "5": {
-        "inputs": {
-          "width": 512,
-          "height": 512,
-          "batch_size": 1
-        },
-        "class_type": "EmptyLatentImage"
-      },
       "6": {
         "inputs": {
-          "text": "beautiful scenery nature glass bottle landscape, purple galaxy bottle,",
-          "clip": ["4", 1]
+          "text": "anime cat with massive fluffy fennec ears and a big fluffy tail blonde messy long hair blue eyes wearing a construction outfit placing a fancy black forest cake with candles on top of a dinner table of an old dark Victorian mansion lit by candlelight with a bright window to the foggy forest and very expensive stuff everywhere there are paintings on the walls",
+          "clip": ["30", 1]
         },
-        "class_type": "CLIPTextEncode"
-      },
-      "7": {
-        "inputs": {
-          "text": "text, watermark",
-          "clip": ["4", 1]
-        },
-        "class_type": "CLIPTextEncode"
+        "class_type": "CLIPTextEncode",
+        "_meta": {
+          "title": "CLIP Text Encode (Positive Prompt)"
+        }
       },
       "8": {
         "inputs": {
-          "samples": ["3", 0],
-          "vae": ["4", 2]
+          "samples": ["31", 0],
+          "vae": ["30", 2]
         },
-        "class_type": "VAEDecode"
+        "class_type": "VAEDecode",
+        "_meta": {
+          "title": "VAE Decode"
+        }
       },
       "9": {
         "inputs": {
           "filename_prefix": "ComfyUI",
           "images": ["8", 0]
         },
-        "class_type": "SaveImage"
+        "class_type": "SaveImage",
+        "_meta": {
+          "title": "Save Image"
+        }
+      },
+      "27": {
+        "inputs": {
+          "width": 512,
+          "height": 512,
+          "batch_size": 1
+        },
+        "class_type": "EmptySD3LatentImage",
+        "_meta": {
+          "title": "EmptySD3LatentImage"
+        }
+      },
+      "30": {
+        "inputs": {
+          "ckpt_name": "flux1-dev-fp8.safetensors"
+        },
+        "class_type": "CheckpointLoaderSimple",
+        "_meta": {
+          "title": "Load Checkpoint"
+        }
+      },
+      "31": {
+        "inputs": {
+          "seed": 243057879077961,
+          "steps": 10,
+          "cfg": 1,
+          "sampler_name": "euler",
+          "scheduler": "simple",
+          "denoise": 1,
+          "model": ["30", 0],
+          "positive": ["35", 0],
+          "negative": ["33", 0],
+          "latent_image": ["27", 0]
+        },
+        "class_type": "KSampler",
+        "_meta": {
+          "title": "KSampler"
+        }
+      },
+      "33": {
+        "inputs": {
+          "text": "",
+          "clip": ["30", 1]
+        },
+        "class_type": "CLIPTextEncode",
+        "_meta": {
+          "title": "CLIP Text Encode (Negative Prompt)"
+        }
+      },
+      "35": {
+        "inputs": {
+          "guidance": 3.5,
+          "conditioning": ["6", 0]
+        },
+        "class_type": "FluxGuidance",
+        "_meta": {
+          "title": "FluxGuidance"
+        }
+      },
+      "38": {
+        "inputs": {
+          "images": ["8", 0]
+        },
+        "class_type": "PreviewImage",
+        "_meta": {
+          "title": "Preview Image"
+        }
+      },
+      "40": {
+        "inputs": {
+          "filename_prefix": "ComfyUI",
+          "images": ["8", 0]
+        },
+        "class_type": "SaveImage",
+        "_meta": {
+          "title": "Save Image"
+        }
       }
-    },
-    "images": [
-      {
-        "name": "input_image_1.png",
-        "image": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
-      }
-    ]
+    }
   }
 }
 ```

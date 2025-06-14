@@ -9,18 +9,22 @@ There are two primary methods for customizing your setup:
 
 ## Method 1: Custom Dockerfile
 
+> [!NOTE]
+>
+> This method does NOT require forking the `worker-comfyui` repository.
+
 This is the most flexible and recommended approach for creating reproducible, customized worker environments.
 
 1.  **Create a `Dockerfile`:** In your own project directory, create a file named `Dockerfile`.
 2.  **Start with a Base Image:** Begin your `Dockerfile` by referencing one of the official base images. Using the `-base` tag is recommended as it provides a clean ComfyUI install with necessary tools like `comfy-cli` but without pre-packaged models.
     ```Dockerfile
-    # start from a clean base image (replace <version> with the desired release)
+    # start from a clean base image (replace <version> with the desired [release](https://github.com/runpod/worker-comfyui/releases))
     FROM runpod/worker-comfyui:<version>-base
     ```
-3.  **Install Custom Nodes:** Use the `comfy node install` command to add custom nodes by their repository name or URL. You can list multiple nodes.
+3.  **Install Custom Nodes:** Use the `comfy-node-install` (we had introduce our own cli tool here, as there is a [problem with comfy-cli not showing errors during installation](https://github.com/Comfy-Org/comfy-cli/pull/275)) command to add custom nodes by their name or URL, see [Comfy Registry](https://registry.comfy.org) to find the correct name. You can list multiple nodes.
     ```Dockerfile
     # install custom nodes using comfy-cli
-    RUN comfy node install comfyui-kjnodes comfyui-ic-light
+    RUN comfy-node-installl comfyui-kjnodes comfyui-ic-light
     ```
 4.  **Download Models:** Use the `comfy model download` command to fetch models and place them in the correct ComfyUI directories.
 
@@ -29,16 +33,24 @@ This is the most flexible and recommended approach for creating reproducible, cu
     RUN comfy model download --url https://huggingface.co/KamCastle/jugg/resolve/main/juggernaut_reborn.safetensors --relative-path models/checkpoints --filename juggernaut_reborn.safetensors
     ```
 
-    > [!INFO]
-    > Ensure you use the correct `--relative-path` corresponding to ComfyUI's model directory structure (starting with `models/<folder>`):
-    >
-    > checkpoints, clip, clip_vision, configs, controlnet, diffusers, embeddings, gligen, hypernetworks, loras, style_models, unet, upscale_models, vae, vae_approx, animatediff_models, animatediff_motion_lora, ipadapter, photomaker, sams, insightface, facerestore_models, facedetection, mmdets, instantid
+> [!NOTE]
+>
+> Ensure you use the correct `--relative-path` corresponding to ComfyUI's model directory structure (starting with `models/<folder>`):
+>
+> checkpoints, clip, clip_vision, configs, controlnet, diffusers, embeddings, gligen, hypernetworks, loras, style_models, unet, upscale_models, vae, vae_approx, animatediff_models, animatediff_motion_lora, ipadapter, photomaker, sams, insightface, facerestore_models, facedetection, mmdets, instantid
 
-5.  **Add Static Input Files (Optional):** If your workflows consistently require specific input images, masks, videos, etc., you can copy them directly into the image. - Create an `input/` directory in the same folder as your `Dockerfile`. - Place your static files inside this `input/` directory. - Add a `COPY` command to your `Dockerfile`:
-    `Dockerfile
-    # Copy local static input files into the ComfyUI input directory
-    COPY input/ /comfyui/input/
-    `These files can then be referenced in your workflow using a "Load Image" (or similar) node pointing to the filename (e.g.,`my_static_image.png`).
+5.  **Add Static Input Files (Optional):** If your workflows consistently require specific input images, masks, videos, etc., you can copy them directly into the image.
+
+- Create an `input/` directory in the same folder as your `Dockerfile`.
+- Place your static files inside this `input/` directory.
+- Add a `COPY` command to your `Dockerfile`:
+
+  ```Dockerfile
+  # Copy local static input files into the ComfyUI input directory
+  COPY input/ /comfyui/input/
+  ```
+
+- These files can then be referenced in your workflow using a "Load Image" (or similar) node pointing to the filename (e.g.,`my_static_image.png`).
 
 Once you have created your custom `Dockerfile`, refer to the [Deployment Guide](deployment.md#deploying-custom-setups) for instructions on how to build, push and deploy your custom image to RunPod.
 
@@ -46,10 +58,10 @@ Once you have created your custom `Dockerfile`, refer to the [Deployment Guide](
 
 ```Dockerfile
 # start from a clean base image (replace <version> with the desired release)
-FROM runpod/worker-comfyui:5.0.0-base
+FROM runpod/worker-comfyui:5.1.0-base
 
 # install custom nodes using comfy-cli
-RUN comfy node install comfyui-kjnodes comfyui-ic-light comfyui_ipadapter_plus comfyui_essentials ComfyUI-Hangover-Nodes
+RUN comfy-node-install comfyui-kjnodes comfyui-ic-light comfyui_ipadapter_plus comfyui_essentials ComfyUI-Hangover-Nodes
 
 # download models using comfy-cli
 # the "--filename" is what you use in your ComfyUI workflow
