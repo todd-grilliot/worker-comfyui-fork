@@ -56,7 +56,7 @@ FROM base AS downloader
 
 ARG HUGGINGFACE_ACCESS_TOKEN
 # Set default model type if none is provided
-ARG MODEL_TYPE=wan14_I2V
+ARG MODEL_TYPE=custom
 
 # Change working directory to ComfyUI
 WORKDIR /comfyui
