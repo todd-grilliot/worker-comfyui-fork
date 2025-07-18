@@ -137,4 +137,4 @@ FROM base AS final
 COPY --from=downloader /comfyui/models /comfyui/models
 
 # Add custom node "video helper suite"
-RUN comfy-node-install comfyui-videohelpersuite
+RUN comfy-node-install comfyui-videohelpersuite && comfy-node-install comfyui_controlnet_aux && comfy-node-install ComfyUI-PixelArt-Detector
