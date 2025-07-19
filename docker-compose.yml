@@ -20,3 +20,8 @@ services:
     volumes:
       - ./data/comfyui/output:/comfyui/output
       - ./data/runpod-volume:/runpod-volume
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./handler.py
+          target: /handler.py
